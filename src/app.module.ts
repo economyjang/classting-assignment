@@ -2,14 +2,14 @@ import { Module } from '@nestjs/common';
 import { AuthModule } from './auth/auth.module';
 import { FeedModule } from './feed/feed.module';
 import { NewsModule } from './news/news.module';
-import { SchoolModule } from './school/school.module';
+import { PageModule } from './page/page.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtStrategy } from './passport/jwt.strategy';
 
 @Module({
     imports: [
         AuthModule,
-        SchoolModule,
+        PageModule,
         NewsModule,
         FeedModule,
         TypeOrmModule.forRoot({
