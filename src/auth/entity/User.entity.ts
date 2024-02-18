@@ -3,10 +3,12 @@ import {
     CreateDateColumn,
     DeleteDateColumn,
     Entity,
+    OneToMany,
     PrimaryGeneratedColumn,
     UpdateDateColumn,
 } from 'typeorm';
 import { UserType } from '../../../types/UserType';
+import { Subscription } from '../../page/entity/Subscription.entity';
 
 @Entity()
 export class User {
@@ -33,6 +35,9 @@ export class User {
 
     @DeleteDateColumn()
     deleted_at: Date;
+
+    @OneToMany(() => Subscription, (subscriptions) => subscriptions.user)
+    subscriptions: Subscription[];
 
     setEmailId(emailId: string) {
         this.email_id = emailId;
