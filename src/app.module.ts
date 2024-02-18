@@ -4,6 +4,7 @@ import { FeedModule } from './feed/feed.module';
 import { NewsModule } from './news/news.module';
 import { SchoolModule } from './school/school.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { JwtStrategy } from './passport/jwt.strategy';
 
 @Module({
     imports: [
@@ -23,6 +24,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
         }),
     ],
     controllers: [],
-    providers: [],
+    providers: [JwtStrategy],
 })
 export class AppModule {}
