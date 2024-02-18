@@ -7,11 +7,14 @@ import { User } from '../auth/entity/User.entity';
 import { UserType } from '../../types/UserType';
 import { Subscription } from './entity/Subscription.entity';
 import { NotFoundException } from '@nestjs/common';
+import { News } from './entity/News.entity';
+import { NewsDto } from './dto/NewsDto';
 
 describe('PageService', () => {
     let service: PageService;
     let pageRepository: Repository<Page>;
     let subscriptionRepository: Repository<Subscription>;
+    let newsRepository: Repository<News>;
 
     beforeEach(async () => {
         const module: TestingModule = await Test.createTestingModule({
@@ -34,12 +37,22 @@ describe('PageService', () => {
                         softDelete: jest.fn(),
                     },
                 },
+                {
+                    provide: getRepositoryToken(News),
+                    useValue: {
+                        save: jest.fn(),
+                        exists: jest.fn(),
+                        findOne: jest.fn(),
+                        softDelete: jest.fn(),
+                    },
+                },
             ],
         }).compile();
 
         service = module.get<PageService>(PageService);
         pageRepository = module.get(getRepositoryToken(Page));
         subscriptionRepository = module.get(getRepositoryToken(Subscription));
+        newsRepository = module.get(getRepositoryToken(News));
     });
 
     it('should be defined', () => {
@@ -143,6 +156,61 @@ describe('PageService', () => {
                 user: user,
                 page: page,
             });
+        });
+
+        it('존재하지 않은 페이지 테스트', async () => {
+            const user = new User();
+            user.id = 'test';
+            user.email_id = 'test@test.com';
+            user.password = 'test';
+            user.type = UserType.STUDENT;
+            const pageId = 'test';
+            const page = new Page();
+            page.id = 'test';
+
+            jest.spyOn(pageRepository, 'findOne').mockResolvedValue(undefined);
+
+            await expect(service.unSubscribePage(user, pageId)).rejects.toThrow(
+                NotFoundException,
+            );
+            expect(pageRepository.findOne).toHaveBeenCalledWith({
+                where: { id: 'test' },
+            });
+        });
+    });
+
+    describe('createNews 테스트', () => {
+        it('페이지 소식 생성 테스트', async () => {
+            const user = new User();
+            user.id = 'test';
+            user.email_id = 'test@test.com';
+            user.password = 'test';
+            user.type = UserType.MANAGER;
+
+            const pageId = 'test';
+            const page = new Page();
+            page.id = 'test';
+
+            const newsDto = new NewsDto();
+            newsDto.subject = 'hello';
+            newsDto.content = 'world';
+
+            const news = new News()
+                .setSubject(newsDto.subject)
+                .setContent(newsDto.content)
+                .setPage(page)
+                .setCreatedBy(user.name);
+
+            jest.spyOn(pageRepository, 'findOne').mockResolvedValue(page);
+            jest.spyOn(newsRepository, 'save').mockResolvedValue(undefined);
+
+            await expect(
+                service.createNews(user, pageId, newsDto),
+            ).resolves.not.toThrow();
+            expect(pageRepository.findOne).toHaveBeenCalledWith({
+                where: { id: 'test' },
+            });
+            expect(newsRepository.save).toHaveBeenCalledWith(news);
         });
 
         it('존재하지 않은 페이지 테스트', async () => {
