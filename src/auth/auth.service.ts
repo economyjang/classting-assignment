@@ -62,6 +62,10 @@ export class AuthService {
         };
     }
 
+    async validateUser(id: string) {
+        return await this.userRepository.findOne({where: {id}});
+    }
+
     private async hashPassword(password: string): Promise<string> {
         return bcrypt.hashSync(password, 10);
     }
