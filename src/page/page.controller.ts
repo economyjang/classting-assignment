@@ -12,6 +12,7 @@ import { PageDto } from './dto/PageDto';
 import { RolesGuard } from '../auth/guard/roles.guard';
 import { UserType } from '../../types/UserType';
 import { Roles } from '../auth/decorator/roles.decorator';
+import { SubscriptionDto } from './dto/SubscriptionDto';
 
 @UseGuards(RolesGuard)
 @UseGuards(AuthGuard('jwt'))
@@ -22,7 +23,17 @@ export class PageController {
     @Post('create')
     @HttpCode(200)
     @Roles(UserType.MANAGER)
-    async createPage(@Request() req, @Body() pageDto: PageDto) {
+    async create(@Request() req, @Body() pageDto: PageDto) {
         await this.pageService.createPage(req.user, pageDto);
     }
+
+    // 구독
+    @Post('subscription')
+    @HttpCode(200)
+    async subscribe(@Request() req, @Body() subscriptionDto: SubscriptionDto) {
+        await this.pageService.subscribePage(req.user, subscriptionDto);
+    }
+
+    // 구독 취소
+    // 구독 중인 페이지 목록
 }

@@ -4,6 +4,7 @@ import { PageService } from './page.service';
 import { AuthGuard } from '@nestjs/passport';
 import { RolesGuard } from '../auth/guard/roles.guard';
 import { PageDto } from './dto/PageDto';
+import { SubscriptionDto } from './dto/SubscriptionDto';
 
 describe('SchoolController', () => {
     let controller: PageController;
@@ -11,6 +12,7 @@ describe('SchoolController', () => {
 
     const mockPageService = {
         createPage: jest.fn(),
+        subscribePage: jest.fn(),
     };
 
     beforeEach(async () => {
@@ -37,14 +39,28 @@ describe('SchoolController', () => {
         expect(controller).toBeDefined();
     });
 
-    describe('createPage', () => {
+    describe('create', () => {
         it('PageService 올바른 호출', async () => {
             const pageDto = new PageDto();
             const req = { user: { id: 'user-id', roles: ['MANAGER'] } };
 
-            await controller.createPage(req, pageDto);
+            await controller.create(req, pageDto);
 
             expect(service.createPage).toHaveBeenCalledWith(req.user, pageDto);
+        });
+    });
+
+    describe('subscription', () => {
+        it('PageService 올바른 호출', async () => {
+            const subscriptionDto = new SubscriptionDto();
+            const req = { user: { id: 'user-id', roles: ['STUDENT'] } };
+
+            await controller.subscribe(req, subscriptionDto);
+
+            expect(service.subscribePage).toHaveBeenCalledWith(
+                req.user,
+                subscriptionDto,
+            );
         });
     });
 });
