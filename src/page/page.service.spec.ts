@@ -75,7 +75,7 @@ describe('PageService', () => {
             user.email_id = 'test@test.com';
             user.password = 'test';
             user.type = UserType.STUDENT;
-            const subscriptionDto = { id: 'test' };
+            const pageId = 'test';
             const page = new Page();
             page.id = 'test';
 
@@ -85,7 +85,7 @@ describe('PageService', () => {
             );
 
             await expect(
-                service.subscribePage(user, subscriptionDto),
+                service.subscribePage(user, pageId),
             ).resolves.not.toThrow();
             expect(pageRepository.findOne).toHaveBeenCalledWith({
                 where: { id: 'test' },
@@ -102,15 +102,15 @@ describe('PageService', () => {
             user.email_id = 'test@test.com';
             user.password = 'test';
             user.type = UserType.STUDENT;
-            const subscriptionDto = { id: 'test' };
+            const pageId = 'test';
             const page = new Page();
             page.id = 'test';
 
             jest.spyOn(pageRepository, 'findOne').mockResolvedValue(undefined);
 
-            await expect(
-                service.subscribePage(user, subscriptionDto),
-            ).rejects.toThrow(NotFoundException);
+            await expect(service.subscribePage(user, pageId)).rejects.toThrow(
+                NotFoundException,
+            );
             expect(pageRepository.findOne).toHaveBeenCalledWith({
                 where: { id: 'test' },
             });
@@ -124,7 +124,7 @@ describe('PageService', () => {
             user.email_id = 'test@test.com';
             user.password = 'test';
             user.type = UserType.STUDENT;
-            const subscriptionDto = { id: 'test' };
+            const pageId = 'test';
             const page = new Page();
             page.id = 'test';
 
@@ -134,7 +134,7 @@ describe('PageService', () => {
             );
 
             await expect(
-                service.unSubscribePage(user, subscriptionDto),
+                service.unSubscribePage(user, pageId),
             ).resolves.not.toThrow();
             expect(pageRepository.findOne).toHaveBeenCalledWith({
                 where: { id: 'test' },
@@ -151,15 +151,15 @@ describe('PageService', () => {
             user.email_id = 'test@test.com';
             user.password = 'test';
             user.type = UserType.STUDENT;
-            const subscriptionDto = { id: 'test' };
+            const pageId = 'test';
             const page = new Page();
             page.id = 'test';
 
             jest.spyOn(pageRepository, 'findOne').mockResolvedValue(undefined);
 
-            await expect(
-                service.unSubscribePage(user, subscriptionDto),
-            ).rejects.toThrow(NotFoundException);
+            await expect(service.unSubscribePage(user, pageId)).rejects.toThrow(
+                NotFoundException,
+            );
             expect(pageRepository.findOne).toHaveBeenCalledWith({
                 where: { id: 'test' },
             });

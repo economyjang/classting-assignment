@@ -4,7 +4,6 @@ import { Page } from './entity/Page.entity';
 import { Repository } from 'typeorm';
 import { PageDto } from './dto/PageDto';
 import { User } from '../auth/entity/User.entity';
-import { SubscriptionDto } from './dto/SubscriptionDto';
 import { Subscription } from './entity/Subscription.entity';
 
 @Injectable()
@@ -23,9 +22,9 @@ export class PageService {
         await this.pageRepository.save(page);
     }
 
-    async subscribePage(user: User, subscriptionDto: SubscriptionDto) {
+    async subscribePage(user: User, pageId: string) {
         const page = await this.pageRepository.findOne({
-            where: { id: subscriptionDto.id },
+            where: { id: pageId },
         });
         if (!page) {
             throw new NotFoundException('존재하지 않는 페이지 입니다.');
@@ -35,9 +34,9 @@ export class PageService {
         await this.subscriptionRepository.save(subscription);
     }
 
-    async unSubscribePage(user: User, subscriptionDto: SubscriptionDto) {
+    async unSubscribePage(user: User, pageId: string) {
         const page = await this.pageRepository.findOne({
-            where: { id: subscriptionDto.id },
+            where: { id: pageId },
         });
         if (!page) {
             throw new NotFoundException('존재하지 않는 페이지 입니다.');
