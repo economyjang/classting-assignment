@@ -13,6 +13,7 @@ describe('SchoolController', () => {
     const mockPageService = {
         createPage: jest.fn(),
         subscribePage: jest.fn(),
+        unSubscribePage: jest.fn(),
     };
 
     beforeEach(async () => {
@@ -50,7 +51,7 @@ describe('SchoolController', () => {
         });
     });
 
-    describe('subscription', () => {
+    describe('subscribe', () => {
         it('PageService 올바른 호출', async () => {
             const subscriptionDto = new SubscriptionDto();
             const req = { user: { id: 'user-id', roles: ['STUDENT'] } };
@@ -58,6 +59,20 @@ describe('SchoolController', () => {
             await controller.subscribe(req, subscriptionDto);
 
             expect(service.subscribePage).toHaveBeenCalledWith(
+                req.user,
+                subscriptionDto,
+            );
+        });
+    });
+
+    describe('unSubscribe', () => {
+        it('PageService 올바른 호출', async () => {
+            const subscriptionDto = new SubscriptionDto();
+            const req = { user: { id: 'user-id', roles: ['STUDENT'] } };
+
+            await controller.unSubscribe(req, subscriptionDto);
+
+            expect(service.unSubscribePage).toHaveBeenCalledWith(
                 req.user,
                 subscriptionDto,
             );

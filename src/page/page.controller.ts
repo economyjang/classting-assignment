@@ -28,12 +28,18 @@ export class PageController {
     }
 
     // 구독
-    @Post('subscription')
+    @Post('subscribe')
     @HttpCode(200)
     async subscribe(@Request() req, @Body() subscriptionDto: SubscriptionDto) {
         await this.pageService.subscribePage(req.user, subscriptionDto);
     }
 
     // 구독 취소
+    @Post('unsubscribe')
+    @HttpCode(200)
+    async unSubscribe(@Request() req, @Body() subscriptionDto: SubscriptionDto) {
+        await this.pageService.unSubscribePage(req.user, subscriptionDto);
+    }
+
     // 구독 중인 페이지 목록
 }
