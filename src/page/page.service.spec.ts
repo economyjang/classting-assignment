@@ -31,6 +31,7 @@ describe('PageService', () => {
                         save: jest.fn(),
                         exists: jest.fn(),
                         findOne: jest.fn(),
+                        softDelete: jest.fn(),
                     },
                 },
             ],
@@ -109,6 +110,55 @@ describe('PageService', () => {
 
             await expect(
                 service.subscribePage(user, subscriptionDto),
+            ).rejects.toThrow(NotFoundException);
+            expect(pageRepository.findOne).toHaveBeenCalledWith({
+                where: { id: 'test' },
+            });
+        });
+    });
+
+    describe('unSubscribePage 테스트', () => {
+        it('정상 구독 해지 테스트', async () => {
+            const user = new User();
+            user.id = 'test';
+            user.email_id = 'test@test.com';
+            user.password = 'test';
+            user.type = UserType.STUDENT;
+            const subscriptionDto = { id: 'test' };
+            const page = new Page();
+            page.id = 'test';
+
+            jest.spyOn(pageRepository, 'findOne').mockResolvedValue(page);
+            jest.spyOn(subscriptionRepository, 'softDelete').mockResolvedValue(
+                undefined,
+            );
+
+            await expect(
+                service.unSubscribePage(user, subscriptionDto),
+            ).resolves.not.toThrow();
+            expect(pageRepository.findOne).toHaveBeenCalledWith({
+                where: { id: 'test' },
+            });
+            expect(subscriptionRepository.softDelete).toHaveBeenCalledWith({
+                user: user,
+                page: page,
+            });
+        });
+
+        it('존재하지 않은 페이지 테스트', async () => {
+            const user = new User();
+            user.id = 'test';
+            user.email_id = 'test@test.com';
+            user.password = 'test';
+            user.type = UserType.STUDENT;
+            const subscriptionDto = { id: 'test' };
+            const page = new Page();
+            page.id = 'test';
+
+            jest.spyOn(pageRepository, 'findOne').mockResolvedValue(undefined);
+
+            await expect(
+                service.unSubscribePage(user, subscriptionDto),
             ).rejects.toThrow(NotFoundException);
             expect(pageRepository.findOne).toHaveBeenCalledWith({
                 where: { id: 'test' },

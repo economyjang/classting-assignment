@@ -34,4 +34,15 @@ export class PageService {
         const subscription = new Subscription().setUser(user).setPage(page);
         await this.subscriptionRepository.save(subscription);
     }
+
+    async unSubscribePage(user: User, subscriptionDto: SubscriptionDto) {
+        const page = await this.pageRepository.findOne({
+            where: { id: subscriptionDto.id },
+        });
+        if (!page) {
+            throw new NotFoundException('존재하지 않는 페이지 입니다.');
+        }
+
+        await this.subscriptionRepository.softDelete({ user, page });
+    }
 }
