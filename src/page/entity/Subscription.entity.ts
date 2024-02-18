@@ -1,25 +1,24 @@
 import {
-    Column,
     CreateDateColumn,
     DeleteDateColumn,
     Entity,
-    JoinColumn,
-    OneToOne,
+    ManyToOne,
     PrimaryGeneratedColumn,
     UpdateDateColumn,
 } from 'typeorm';
 import { User } from '../../auth/entity/User.entity';
+import { Page } from './Page.entity';
 
 @Entity()
-export class Page {
+export class Subscription {
     @PrimaryGeneratedColumn()
     id: string;
 
-    @Column()
-    name: string;
+    @ManyToOne(() => User, (user) => user.subscriptions)
+    user: User;
 
-    @Column()
-    region: string;
+    @ManyToOne(() => Page)
+    page: Page;
 
     @CreateDateColumn()
     created_at: Date;
@@ -30,22 +29,13 @@ export class Page {
     @DeleteDateColumn()
     deleted_at: Date;
 
-    @OneToOne(() => User)
-    @JoinColumn()
-    manager: User;
-
-    setName(name: string) {
-        this.name = name;
+    setUser(user: User) {
+        this.user = user;
         return this;
     }
 
-    setRegion(region: string) {
-        this.region = region;
-        return this;
-    }
-
-    setManager(manager: User) {
-        this.manager = manager;
+    setPage(page: Page) {
+        this.page = page;
         return this;
     }
 }
