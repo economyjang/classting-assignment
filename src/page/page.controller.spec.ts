@@ -4,7 +4,6 @@ import { PageService } from './page.service';
 import { AuthGuard } from '@nestjs/passport';
 import { RolesGuard } from '../auth/guard/roles.guard';
 import { PageDto } from './dto/PageDto';
-import { SubscriptionDto } from './dto/SubscriptionDto';
 
 describe('SchoolController', () => {
     let controller: PageController;
@@ -53,28 +52,28 @@ describe('SchoolController', () => {
 
     describe('subscribe', () => {
         it('PageService 올바른 호출', async () => {
-            const subscriptionDto = new SubscriptionDto();
+            const pageId = 'test';
             const req = { user: { id: 'user-id', roles: ['STUDENT'] } };
 
-            await controller.subscribe(req, subscriptionDto);
+            await controller.subscribe(req, pageId);
 
             expect(service.subscribePage).toHaveBeenCalledWith(
                 req.user,
-                subscriptionDto,
+                pageId,
             );
         });
     });
 
     describe('unSubscribe', () => {
         it('PageService 올바른 호출', async () => {
-            const subscriptionDto = new SubscriptionDto();
+            const pageId = 'test';
             const req = { user: { id: 'user-id', roles: ['STUDENT'] } };
 
-            await controller.unSubscribe(req, subscriptionDto);
+            await controller.unSubscribe(req, pageId);
 
             expect(service.unSubscribePage).toHaveBeenCalledWith(
                 req.user,
-                subscriptionDto,
+                pageId,
             );
         });
     });
