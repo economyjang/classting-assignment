@@ -71,6 +71,11 @@ export class PageService {
             relations: {
                 news: true,
             },
+            order: {
+                news: {
+                    created_at: { direction: 'DESC' },
+                },
+            },
         });
     }
 
