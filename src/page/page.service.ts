@@ -1,11 +1,16 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import {
+    forwardRef,
+    Inject,
+    Injectable,
+    NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Page } from './entity/Page.entity';
 import { Repository } from 'typeorm';
 import { PageDto } from './dto/PageDto';
 import { User } from '../auth/entity/User.entity';
-import { NewsDto } from './dto/NewsDto';
-import { News } from './entity/News.entity';
+import { NewsDto } from '../news/dto/NewsDto';
+import { News } from '../news/entity/News.entity';
 import { SubscriptionService } from '../subscription/subscription.service';
 
 @Injectable()
@@ -13,6 +18,7 @@ export class PageService {
     constructor(
         @InjectRepository(Page) private pageRepository: Repository<Page>,
         @InjectRepository(News) private newsRepository: Repository<News>,
+        @Inject(forwardRef(() => SubscriptionService))
         private subscriptionService: SubscriptionService,
     ) {}
 
@@ -57,6 +63,15 @@ export class PageService {
 
         newsResult.setSubject(newsDto.subject).setContent(newsDto.content);
         await this.newsRepository.save(newsResult);
+    }
+
+    async getNewsByPageId(pageId: string) {
+        return await this.pageRepository.findOne({
+            where: { id: pageId },
+            relations: {
+                news: true,
+            },
+        });
     }
 
     private async validateNewsId(newsId: string, pageId: string) {

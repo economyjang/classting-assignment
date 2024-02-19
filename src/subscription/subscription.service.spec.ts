@@ -6,15 +6,24 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { User } from '../auth/entity/User.entity';
 import { UserType } from '../../types/UserType';
 import { Page } from '../page/entity/Page.entity';
+import { PageService } from '../page/page.service';
+import { NotFoundException } from '@nestjs/common';
 
 describe('SubscriptionService', () => {
     let service: SubscriptionService;
+    let pageService: PageService;
     let subscriptionRepository: Repository<Subscription>;
 
     beforeEach(async () => {
         const module: TestingModule = await Test.createTestingModule({
             providers: [
                 SubscriptionService,
+                {
+                    provide: PageService,
+                    useValue: {
+                        getNewsByPageId: jest.fn(),
+                    },
+                },
                 {
                     provide: getRepositoryToken(Subscription),
                     useValue: {
@@ -29,6 +38,7 @@ describe('SubscriptionService', () => {
         }).compile();
 
         service = module.get<SubscriptionService>(SubscriptionService);
+        pageService = module.get<PageService>(PageService);
         subscriptionRepository = module.get(getRepositoryToken(Subscription));
     });
 
@@ -88,6 +98,45 @@ describe('SubscriptionService', () => {
             expect(subscriptionRepository.softDelete).toHaveBeenCalledWith({
                 user,
                 page,
+            });
+        });
+    });
+
+    describe('학생이 구독중인 페이지의 뉴스 조회 테스트', () => {
+        it('정상 조회 테스트', async () => {
+            const user = new User();
+            const pageId = 'test';
+
+            jest.spyOn(subscriptionRepository, 'exists').mockResolvedValue(
+                true,
+            );
+            jest.spyOn(pageService, 'getNewsByPageId').mockResolvedValue(
+                new Page(),
+            );
+
+            await expect(
+                service.getNewsBySubscribedPageId(user, pageId),
+            ).resolves.not.toThrow();
+            expect(subscriptionRepository.exists).toHaveBeenCalledWith({
+                where: { user: { id: user.id }, page: { id: pageId } },
+                relations: { user: true, page: true },
+            });
+        });
+
+        it('구독하지 않은 페이지', async () => {
+            const user = new User();
+            const pageId = 'test';
+
+            jest.spyOn(subscriptionRepository, 'exists').mockResolvedValue(
+                false,
+            );
+
+            await expect(
+                service.getNewsBySubscribedPageId(user, pageId),
+            ).rejects.toThrow(NotFoundException);
+            expect(subscriptionRepository.exists).toHaveBeenCalledWith({
+                where: { user: { id: user.id }, page: { id: pageId } },
+                relations: { user: true, page: true },
             });
         });
     });
