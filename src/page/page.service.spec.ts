@@ -5,7 +5,7 @@ import { Page } from './entity/Page.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { User } from '../auth/entity/User.entity';
 import { UserType } from '../../types/UserType';
-import { Subscription } from './entity/Subscription.entity';
+import { Subscription } from '../subscription/entity/Subscription.entity';
 import { NotFoundException } from '@nestjs/common';
 import { News } from './entity/News.entity';
 import { NewsDto } from './dto/NewsDto';

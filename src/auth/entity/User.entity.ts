@@ -8,7 +8,7 @@ import {
     UpdateDateColumn,
 } from 'typeorm';
 import { UserType } from '../../../types/UserType';
-import { Subscription } from '../../page/entity/Subscription.entity';
+import { Subscription } from '../../subscription/entity/Subscription.entity';
 
 @Entity()
 export class User {

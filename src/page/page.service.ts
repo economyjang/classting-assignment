@@ -4,7 +4,7 @@ import { Page } from './entity/Page.entity';
 import { Repository } from 'typeorm';
 import { PageDto } from './dto/PageDto';
 import { User } from '../auth/entity/User.entity';
-import { Subscription } from './entity/Subscription.entity';
+import { Subscription } from '../subscription/entity/Subscription.entity';
 import { NewsDto } from './dto/NewsDto';
 import { News } from './entity/News.entity';
 
