@@ -5,6 +5,7 @@ import { Subscription } from './entity/Subscription.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { User } from '../auth/entity/User.entity';
 import { UserType } from '../../types/UserType';
+import { Page } from '../page/entity/Page.entity';
 
 describe('SubscriptionService', () => {
     let service: SubscriptionService;
@@ -51,6 +52,42 @@ describe('SubscriptionService', () => {
             expect(subscriptionRepository.find).toHaveBeenCalledWith({
                 where: { user: { id: user.id } },
                 relations: { user: true, page: true },
+            });
+        });
+    });
+
+    describe('페이지 구독 & 취소 테스트', () => {
+        it('정상 구독 테스트', async () => {
+            const user = new User();
+            const page = new Page();
+            const subscription = new Subscription().setUser(user).setPage(page);
+
+            jest.spyOn(subscriptionRepository, 'save').mockResolvedValue(
+                undefined,
+            );
+
+            await expect(
+                service.saveSubscription(user, page),
+            ).resolves.not.toThrow();
+            expect(subscriptionRepository.save).toHaveBeenCalledWith(
+                subscription,
+            );
+        });
+
+        it('정상 구독 취소 테스트', async () => {
+            const user = new User();
+            const page = new Page();
+
+            jest.spyOn(subscriptionRepository, 'softDelete').mockResolvedValue(
+                undefined,
+            );
+
+            await expect(
+                service.deleteSubscription(user, page),
+            ).resolves.not.toThrow();
+            expect(subscriptionRepository.softDelete).toHaveBeenCalledWith({
+                user,
+                page,
             });
         });
     });
