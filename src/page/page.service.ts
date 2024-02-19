@@ -48,7 +48,20 @@ export class PageService {
 
     async deleteNews(pageId: string, newsId: string) {
         await this.validatePageId(pageId);
+        await this.validateNewsId(newsId, pageId);
 
+        await this.newsRepository.softDelete(newsId);
+    }
+
+    async updateNews(pageId: string, newsId: string, newsDto: NewsDto) {
+        await this.validatePageId(pageId);
+        const newsResult = await this.validateNewsId(newsId, pageId);
+
+        newsResult.setSubject(newsDto.subject).setContent(newsDto.content);
+        await this.newsRepository.save(newsResult);
+    }
+
+    private async validateNewsId(newsId: string, pageId: string) {
         const newsResult = await this.newsRepository.findOne({
             where: { id: newsId, page: { id: pageId } },
             relations: { page: true },
@@ -57,7 +70,7 @@ export class PageService {
             throw new NotFoundException('존재하지 않는 소식 입니다.');
         }
 
-        await this.newsRepository.softDelete(newsId);
+        return newsResult;
     }
 
     private async validatePageId(pageId: string) {

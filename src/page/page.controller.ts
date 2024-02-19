@@ -7,6 +7,7 @@ import {
     Body,
     Param,
     Delete,
+    Patch,
 } from '@nestjs/common';
 import { PageService } from './page.service';
 import { AuthGuard } from '@nestjs/passport';
@@ -65,5 +66,17 @@ export class PageController {
         @Param('newsId') newsId: string,
     ) {
         await this.pageService.deleteNews(pageId, newsId);
+    }
+
+    // 페이지 소식 수정
+    @Patch(':pageId/news/:newId')
+    @HttpCode(200)
+    @Roles(UserType.MANAGER)
+    async updateNews(
+        @Param('pageId') pageId: string,
+        @Param('newsId') newsId: string,
+        @Body() newDto: NewsDto,
+    ) {
+        await this.pageService.updateNews(pageId, newsId, newDto);
     }
 }

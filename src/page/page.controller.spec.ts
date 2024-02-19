@@ -16,6 +16,7 @@ describe('PageController', () => {
         unSubscribePage: jest.fn(),
         createNews: jest.fn(),
         deleteNews: jest.fn(),
+        updateNews: jest.fn(),
     };
 
     beforeEach(async () => {
@@ -105,6 +106,22 @@ describe('PageController', () => {
             await controller.deleteNews(pageId, newsId);
 
             expect(service.deleteNews).toHaveBeenCalledWith(pageId, newsId);
+        });
+    });
+
+    describe('updateNews', () => {
+        it('PageService 올바른 호출', async () => {
+            const pageId = 'test';
+            const newsId = 'test';
+            const newsDto = new NewsDto();
+
+            await controller.updateNews(pageId, newsId, newsDto);
+
+            expect(service.updateNews).toHaveBeenCalledWith(
+                pageId,
+                newsId,
+                newsDto,
+            );
         });
     });
 });
