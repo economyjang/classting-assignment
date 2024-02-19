@@ -1,15 +1,22 @@
-import { Injectable } from '@nestjs/common';
+import {
+    forwardRef,
+    Inject,
+    Injectable,
+    NotFoundException,
+} from '@nestjs/common';
 import { User } from '../auth/entity/User.entity';
 import { Subscription } from './entity/Subscription.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Page } from '../page/entity/Page.entity';
+import { PageService } from '../page/page.service';
 
 @Injectable()
 export class SubscriptionService {
     constructor(
         @InjectRepository(Subscription)
         private subscriptionRepository: Repository<Subscription>,
+        @Inject(forwardRef(() => PageService)) private pageService: PageService,
     ) {}
 
     async getMySubscribePages(user: User) {
@@ -27,5 +34,18 @@ export class SubscriptionService {
 
     async deleteSubscription(user: User, page: Page) {
         await this.subscriptionRepository.softDelete({ user, page });
+    }
+
+    async getNewsBySubscribedPageId(user: User, pageId: string) {
+        const existResult = await this.subscriptionRepository.exists({
+            where: { user: { id: user.id }, page: { id: pageId } },
+            relations: { user: true, page: true },
+        });
+        if (!existResult) {
+            throw new NotFoundException('구독중인 페이지가 아닙니다.');
+        }
+
+        const result = await this.pageService.getNewsByPageId(pageId);
+        return result.news;
     }
 }

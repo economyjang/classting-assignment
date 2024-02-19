@@ -1,4 +1,11 @@
-import { Controller, Get, HttpCode, UseGuards, Request } from '@nestjs/common';
+import {
+    Controller,
+    Get,
+    HttpCode,
+    UseGuards,
+    Request,
+    Param,
+} from '@nestjs/common';
 import { SubscriptionService } from './subscription.service';
 import { AuthGuard } from '@nestjs/passport';
 
@@ -11,5 +18,17 @@ export class SubscriptionController {
     @HttpCode(200)
     async getMySubscribePages(@Request() req) {
         return await this.subscriptionService.getMySubscribePages(req.user);
+    }
+
+    @Get('/:pageId/news')
+    @HttpCode(200)
+    async getNewsBySubscribedPageId(
+        @Request() req,
+        @Param('pageId') pageId: string,
+    ) {
+        return this.subscriptionService.getNewsBySubscribedPageId(
+            req.user,
+            pageId,
+        );
     }
 }

@@ -9,6 +9,7 @@ describe('SubscriptionController', () => {
 
     const mockSubscriptionService = {
         getMySubscribePages: jest.fn(),
+        getNewsBySubscribedPageId: jest.fn(),
     };
 
     beforeEach(async () => {
@@ -32,10 +33,23 @@ describe('SubscriptionController', () => {
 
     describe('getMySubscribePages', () => {
         it('SubscriptionService 올바른 호출', async () => {
-            const req = { user: { id: 'user-id', roles: ['MANAGER'] } };
+            const req = { user: { id: 'user-id', roles: ['STUDENT'] } };
 
             await controller.getMySubscribePages(req);
             expect(service.getMySubscribePages).toHaveBeenCalledWith(req.user);
+        });
+    });
+
+    describe('getNewsBySubscribedPageId', () => {
+        it('SubscriptionService 올바른 호출', async () => {
+            const req = { user: { id: 'user-id', roles: ['STUDENT'] } };
+            const pageId = 'test';
+
+            await controller.getNewsBySubscribedPageId(req, pageId);
+            expect(service.getNewsBySubscribedPageId).toHaveBeenCalledWith(
+                req.user,
+                pageId,
+            );
         });
     });
 });
