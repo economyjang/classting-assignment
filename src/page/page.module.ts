@@ -6,10 +6,11 @@ import { Page } from './entity/Page.entity';
 import { News } from '../news/entity/News.entity';
 import { SubscriptionService } from '../subscription/subscription.service';
 import { Subscription } from '../subscription/entity/Subscription.entity';
+import { NewsService } from '../news/news.service';
 
 @Module({
     imports: [TypeOrmModule.forFeature([Page, News, Subscription])],
-    providers: [PageService, SubscriptionService],
+    providers: [PageService, SubscriptionService, NewsService],
     controllers: [PageController],
     exports: [PageService],
 })

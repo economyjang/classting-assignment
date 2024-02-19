@@ -9,10 +9,12 @@ import { NotFoundException } from '@nestjs/common';
 import { News } from '../news/entity/News.entity';
 import { NewsDto } from '../news/dto/NewsDto';
 import { SubscriptionService } from '../subscription/subscription.service';
+import { NewsService } from '../news/news.service';
 
 describe('PageService', () => {
     let pageService: PageService;
     let subscriptionService: SubscriptionService;
+    let newsService: NewsService;
 
     let pageRepository: Repository<Page>;
     let newsRepository: Repository<News>;
@@ -26,6 +28,14 @@ describe('PageService', () => {
                     useValue: {
                         saveSubscription: jest.fn(),
                         deleteSubscription: jest.fn(),
+                    },
+                },
+                {
+                    provide: NewsService,
+                    useValue: {
+                        createNews: jest.fn(),
+                        deleteNews: jest.fn(),
+                        updateNews: jest.fn(),
                     },
                 },
                 {
@@ -51,6 +61,7 @@ describe('PageService', () => {
         pageService = module.get<PageService>(PageService);
         subscriptionService =
             module.get<SubscriptionService>(SubscriptionService);
+        newsService = module.get<NewsService>(NewsService);
         pageRepository = module.get(getRepositoryToken(Page));
         newsRepository = module.get(getRepositoryToken(News));
     });
@@ -174,14 +185,8 @@ describe('PageService', () => {
     describe('createNews 테스트', () => {
         it('페이지 소식 생성 테스트', async () => {
             const user = new User();
-            user.id = 'test';
-            user.email_id = 'test@test.com';
-            user.password = 'test';
-            user.type = UserType.MANAGER;
-
-            const pageId = 'test';
             const page = new Page();
-            page.id = 'test';
+            const pageId = 'test';
 
             const newsDto = new NewsDto();
             newsDto.subject = 'hello';
@@ -194,7 +199,7 @@ describe('PageService', () => {
                 .setCreatedBy(user.name);
 
             jest.spyOn(pageRepository, 'findOne').mockResolvedValue(page);
-            jest.spyOn(newsRepository, 'save').mockResolvedValue(undefined);
+            jest.spyOn(newsService, 'createNews').mockResolvedValue(undefined);
 
             await expect(
                 pageService.createNews(user, pageId, newsDto),
@@ -202,7 +207,11 @@ describe('PageService', () => {
             expect(pageRepository.findOne).toHaveBeenCalledWith({
                 where: { id: 'test' },
             });
-            expect(newsRepository.save).toHaveBeenCalledWith(news);
+            expect(newsService.createNews).toHaveBeenCalledWith(
+                user,
+                page,
+                newsDto,
+            );
         });
 
         it('존재하지 않은 페이지 테스트', async () => {
@@ -230,15 +239,10 @@ describe('PageService', () => {
         it('페이지 소식 삭제 테스트', async () => {
             const pageId = 'test';
             const newsId = 'test';
-            const news = new News();
             const page = new Page();
-            page.id = 'test';
 
             jest.spyOn(pageRepository, 'findOne').mockResolvedValue(page);
-            jest.spyOn(newsRepository, 'findOne').mockResolvedValue(news);
-            jest.spyOn(newsRepository, 'softDelete').mockResolvedValue(
-                undefined,
-            );
+            jest.spyOn(newsService, 'deleteNews').mockResolvedValue(undefined);
 
             await expect(
                 pageService.deleteNews(pageId, newsId),
@@ -246,11 +250,7 @@ describe('PageService', () => {
             expect(pageRepository.findOne).toHaveBeenCalledWith({
                 where: { id: 'test' },
             });
-            expect(newsRepository.findOne).toHaveBeenCalledWith({
-                where: { id: newsId, page: { id: pageId } },
-                relations: { page: true },
-            });
-            expect(newsRepository.softDelete).toHaveBeenCalledWith(newsId);
+            expect(newsService.deleteNews).toHaveBeenCalledWith(pageId, newsId);
         });
 
         it('존재하지 않은 페이지 테스트', async () => {
@@ -290,13 +290,11 @@ describe('PageService', () => {
         it('페이지 소식 수정 테스트', async () => {
             const pageId = 'test';
             const newsId = 'test';
-            const news = new News();
             const page = new Page();
             const newsDto = new NewsDto();
 
             jest.spyOn(pageRepository, 'findOne').mockResolvedValue(page);
-            jest.spyOn(newsRepository, 'findOne').mockResolvedValue(news);
-            jest.spyOn(newsRepository, 'save').mockResolvedValue(undefined);
+            jest.spyOn(newsService, 'updateNews').mockResolvedValue(undefined);
 
             await expect(
                 pageService.updateNews(pageId, newsId, newsDto),
@@ -304,11 +302,11 @@ describe('PageService', () => {
             expect(pageRepository.findOne).toHaveBeenCalledWith({
                 where: { id: 'test' },
             });
-            expect(newsRepository.findOne).toHaveBeenCalledWith({
-                where: { id: newsId, page: { id: pageId } },
-                relations: { page: true },
-            });
-            expect(newsRepository.save).toHaveBeenCalledWith(news);
+            expect(newsService.updateNews).toHaveBeenCalledWith(
+                pageId,
+                newsId,
+                newsDto,
+            );
         });
 
         it('존재하지 않은 페이지 테스트', async () => {
