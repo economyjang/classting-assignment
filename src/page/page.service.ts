@@ -10,16 +10,16 @@ import { Repository } from 'typeorm';
 import { PageDto } from './dto/PageDto';
 import { User } from '../auth/entity/User.entity';
 import { NewsDto } from '../news/dto/NewsDto';
-import { News } from '../news/entity/News.entity';
 import { SubscriptionService } from '../subscription/subscription.service';
+import { NewsService } from '../news/news.service';
 
 @Injectable()
 export class PageService {
     constructor(
         @InjectRepository(Page) private pageRepository: Repository<Page>,
-        @InjectRepository(News) private newsRepository: Repository<News>,
         @Inject(forwardRef(() => SubscriptionService))
         private subscriptionService: SubscriptionService,
+        private newsService: NewsService,
     ) {}
 
     async createPage(user: User, pageDto: PageDto) {
@@ -42,27 +42,17 @@ export class PageService {
 
     async createNews(user: User, pageId: string, newsDto: NewsDto) {
         const page = await this.validatePageId(pageId);
-        const news = new News()
-            .setSubject(newsDto.subject)
-            .setContent(newsDto.content)
-            .setCreatedBy(user.name)
-            .setPage(page);
-        await this.newsRepository.save(news);
+        await this.newsService.createNews(user, page, newsDto);
     }
 
     async deleteNews(pageId: string, newsId: string) {
         await this.validatePageId(pageId);
-        await this.validateNewsId(newsId, pageId);
-
-        await this.newsRepository.softDelete(newsId);
+        await this.newsService.deleteNews(pageId, newsId);
     }
 
     async updateNews(pageId: string, newsId: string, newsDto: NewsDto) {
         await this.validatePageId(pageId);
-        const newsResult = await this.validateNewsId(newsId, pageId);
-
-        newsResult.setSubject(newsDto.subject).setContent(newsDto.content);
-        await this.newsRepository.save(newsResult);
+        await this.newsService.updateNews(pageId, newsId, newsDto);
     }
 
     async getNewsByPageId(pageId: string) {
@@ -77,18 +67,6 @@ export class PageService {
                 },
             },
         });
-    }
-
-    private async validateNewsId(newsId: string, pageId: string) {
-        const newsResult = await this.newsRepository.findOne({
-            where: { id: newsId, page: { id: pageId } },
-            relations: { page: true },
-        });
-        if (!newsResult) {
-            throw new NotFoundException('존재하지 않는 소식 입니다.');
-        }
-
-        return newsResult;
     }
 
     private async validatePageId(pageId: string) {
