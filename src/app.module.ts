@@ -5,6 +5,7 @@ import { NewsModule } from './news/news.module';
 import { PageModule } from './page/page.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtStrategy } from './passport/jwt.strategy';
+import { SubscriptionModule } from './subscription/subscription.module';
 
 @Module({
     imports: [
@@ -22,6 +23,7 @@ import { JwtStrategy } from './passport/jwt.strategy';
             entities: [__dirname + '/**/*.entity{.ts,.js}'],
             synchronize: true,
         }),
+        SubscriptionModule,
     ],
     controllers: [],
     providers: [JwtStrategy],

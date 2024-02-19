@@ -1,20 +1,19 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Page } from './entity/Page.entity';
 import { Repository } from 'typeorm';
 import { PageDto } from './dto/PageDto';
 import { User } from '../auth/entity/User.entity';
-import { Subscription } from './entity/Subscription.entity';
 import { NewsDto } from './dto/NewsDto';
 import { News } from './entity/News.entity';
+import { SubscriptionService } from '../subscription/subscription.service';
 
 @Injectable()
 export class PageService {
     constructor(
         @InjectRepository(Page) private pageRepository: Repository<Page>,
-        @InjectRepository(Subscription)
-        private subscriptionRepository: Repository<Subscription>,
         @InjectRepository(News) private newsRepository: Repository<News>,
+        private subscriptionService: SubscriptionService,
     ) {}
 
     async createPage(user: User, pageDto: PageDto) {
@@ -27,13 +26,12 @@ export class PageService {
 
     async subscribePage(user: User, pageId: string) {
         const page = await this.validatePageId(pageId);
-        const subscription = new Subscription().setUser(user).setPage(page);
-        await this.subscriptionRepository.save(subscription);
+        await this.subscriptionService.saveSubscription(user, page);
     }
 
     async unSubscribePage(user: User, pageId: string) {
         const page = await this.validatePageId(pageId);
-        await this.subscriptionRepository.softDelete({ user, page });
+        await this.subscriptionService.deleteSubscription(user, page);
     }
 
     async createNews(user: User, pageId: string, newsDto: NewsDto) {

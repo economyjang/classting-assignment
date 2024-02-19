@@ -7,7 +7,7 @@ import {
     UpdateDateColumn,
 } from 'typeorm';
 import { User } from '../../auth/entity/User.entity';
-import { Page } from './Page.entity';
+import { Page } from '../../page/entity/Page.entity';
 
 @Entity()
 export class Subscription {
