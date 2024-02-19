@@ -7,7 +7,7 @@ import {
     PrimaryGeneratedColumn,
     UpdateDateColumn,
 } from 'typeorm';
-import { Page } from './Page.entity';
+import { Page } from '../../page/entity/Page.entity';
 
 @Entity()
 export class News {

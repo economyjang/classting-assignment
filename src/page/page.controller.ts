@@ -15,7 +15,7 @@ import { PageDto } from './dto/PageDto';
 import { RolesGuard } from '../auth/guard/roles.guard';
 import { UserType } from '../../types/UserType';
 import { Roles } from '../auth/decorator/roles.decorator';
-import { NewsDto } from './dto/NewsDto';
+import { NewsDto } from '../news/dto/NewsDto';
 
 @UseGuards(RolesGuard)
 @UseGuards(AuthGuard('jwt'))

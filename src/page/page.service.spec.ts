@@ -6,8 +6,8 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { User } from '../auth/entity/User.entity';
 import { UserType } from '../../types/UserType';
 import { NotFoundException } from '@nestjs/common';
-import { News } from './entity/News.entity';
-import { NewsDto } from './dto/NewsDto';
+import { News } from '../news/entity/News.entity';
+import { NewsDto } from '../news/dto/NewsDto';
 import { SubscriptionService } from '../subscription/subscription.service';
 
 describe('PageService', () => {

@@ -10,7 +10,7 @@ import {
     UpdateDateColumn,
 } from 'typeorm';
 import { User } from '../../auth/entity/User.entity';
-import { News } from './News.entity';
+import { News } from '../../news/entity/News.entity';
 
 @Entity()
 export class Page {

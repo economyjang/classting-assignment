@@ -4,7 +4,7 @@ import { PageService } from './page.service';
 import { AuthGuard } from '@nestjs/passport';
 import { RolesGuard } from '../auth/guard/roles.guard';
 import { PageDto } from './dto/PageDto';
-import { NewsDto } from './dto/NewsDto';
+import { NewsDto } from '../news/dto/NewsDto';
 
 describe('PageController', () => {
     let controller: PageController;
@@ -86,7 +86,7 @@ describe('PageController', () => {
         it('PageService 올바른 호출', async () => {
             const newsDto = new NewsDto();
             const pageId = 'test';
-            const req = { user: { id: 'user-id', roles: ['STUDENT'] } };
+            const req = { user: { id: 'user-id', roles: ['MANAGER'] } };
 
             await controller.createNews(req, pageId, newsDto);
 
