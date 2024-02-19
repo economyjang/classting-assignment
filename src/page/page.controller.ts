@@ -22,6 +22,7 @@ import { NewsDto } from './dto/NewsDto';
 export class PageController {
     constructor(private pageService: PageService) {}
 
+    // 페이지 생성
     @Post()
     @HttpCode(200)
     @Roles(UserType.MANAGER)
@@ -53,5 +54,16 @@ export class PageController {
         @Body() newDto: NewsDto,
     ) {
         await this.pageService.createNews(req.user, pageId, newDto);
+    }
+
+    // 페이지 소식 삭제
+    @Delete(':pageId/news/:newsId')
+    @HttpCode(200)
+    @Roles(UserType.MANAGER)
+    async deleteNews(
+        @Param('pageId') pageId: string,
+        @Param('newsId') newsId: string,
+    ) {
+        await this.pageService.deleteNews(pageId, newsId);
     }
 }

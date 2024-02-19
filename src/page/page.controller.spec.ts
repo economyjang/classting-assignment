@@ -6,7 +6,7 @@ import { RolesGuard } from '../auth/guard/roles.guard';
 import { PageDto } from './dto/PageDto';
 import { NewsDto } from './dto/NewsDto';
 
-describe('SchoolController', () => {
+describe('PageController', () => {
     let controller: PageController;
     let service: PageService;
 
@@ -15,6 +15,7 @@ describe('SchoolController', () => {
         subscribePage: jest.fn(),
         unSubscribePage: jest.fn(),
         createNews: jest.fn(),
+        deleteNews: jest.fn(),
     };
 
     beforeEach(async () => {
@@ -93,6 +94,17 @@ describe('SchoolController', () => {
                 pageId,
                 newsDto,
             );
+        });
+    });
+
+    describe('deleteNews', () => {
+        it('PageService 올바른 호출', async () => {
+            const pageId = 'test';
+            const newsId = 'test';
+
+            await controller.deleteNews(pageId, newsId);
+
+            expect(service.deleteNews).toHaveBeenCalledWith(pageId, newsId);
         });
     });
 });

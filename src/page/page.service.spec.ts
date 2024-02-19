@@ -233,4 +233,64 @@ describe('PageService', () => {
             });
         });
     });
+
+    describe('deleteNews 테스트', () => {
+        it('페이지 소식 삭제 테스트', async () => {
+            const pageId = 'test';
+            const newsId = 'test';
+            const news = new News();
+            const page = new Page();
+            page.id = 'test';
+
+            jest.spyOn(pageRepository, 'findOne').mockResolvedValue(page);
+            jest.spyOn(newsRepository, 'findOne').mockResolvedValue(news);
+            jest.spyOn(newsRepository, 'softDelete').mockResolvedValue(
+                undefined,
+            );
+
+            await expect(
+                service.deleteNews(pageId, newsId),
+            ).resolves.not.toThrow();
+            expect(pageRepository.findOne).toHaveBeenCalledWith({
+                where: { id: 'test' },
+            });
+            expect(newsRepository.findOne).toHaveBeenCalledWith({
+                where: { id: newsId, page: { id: pageId } },
+                relations: { page: true },
+            });
+            expect(newsRepository.softDelete).toHaveBeenCalledWith(newsId);
+        });
+
+        it('존재하지 않은 페이지 테스트', async () => {
+            const pageId = 'test';
+            const newsId = 'test';
+            const page = new Page();
+            page.id = 'test';
+
+            jest.spyOn(pageRepository, 'findOne').mockResolvedValue(undefined);
+
+            await expect(service.deleteNews(pageId, newsId)).rejects.toThrow(
+                NotFoundException,
+            );
+            expect(pageRepository.findOne).toHaveBeenCalledWith({
+                where: { id: 'test' },
+            });
+        });
+
+        it('존재하지 않은 뉴스 테스트', async () => {
+            const pageId = 'test';
+            const newsId = 'test';
+            const page = new Page();
+            page.id = 'test';
+
+            jest.spyOn(newsRepository, 'findOne').mockResolvedValue(undefined);
+
+            await expect(service.deleteNews(pageId, newsId)).rejects.toThrow(
+                NotFoundException,
+            );
+            expect(pageRepository.findOne).toHaveBeenCalledWith({
+                where: { id: 'test' },
+            });
+        });
+    });
 });

@@ -46,6 +46,20 @@ export class PageService {
         await this.newsRepository.save(news);
     }
 
+    async deleteNews(pageId: string, newsId: string) {
+        await this.validatePageId(pageId);
+
+        const newsResult = await this.newsRepository.findOne({
+            where: { id: newsId, page: { id: pageId } },
+            relations: { page: true },
+        });
+        if (!newsResult) {
+            throw new NotFoundException('존재하지 않는 소식 입니다.');
+        }
+
+        await this.newsRepository.softDelete(newsId);
+    }
+
     private async validatePageId(pageId: string) {
         const page = await this.pageRepository.findOne({
             where: { id: pageId },
