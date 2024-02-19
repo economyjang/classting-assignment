@@ -4,8 +4,9 @@ import { PageService } from './page.service';
 import { AuthGuard } from '@nestjs/passport';
 import { RolesGuard } from '../auth/guard/roles.guard';
 import { PageDto } from './dto/PageDto';
+import { NewsDto } from './dto/NewsDto';
 
-describe('SchoolController', () => {
+describe('PageController', () => {
     let controller: PageController;
     let service: PageService;
 
@@ -13,6 +14,9 @@ describe('SchoolController', () => {
         createPage: jest.fn(),
         subscribePage: jest.fn(),
         unSubscribePage: jest.fn(),
+        createNews: jest.fn(),
+        deleteNews: jest.fn(),
+        updateNews: jest.fn(),
     };
 
     beforeEach(async () => {
@@ -39,12 +43,12 @@ describe('SchoolController', () => {
         expect(controller).toBeDefined();
     });
 
-    describe('create', () => {
+    describe('createPage', () => {
         it('PageService 올바른 호출', async () => {
             const pageDto = new PageDto();
             const req = { user: { id: 'user-id', roles: ['MANAGER'] } };
 
-            await controller.create(req, pageDto);
+            await controller.createPage(req, pageDto);
 
             expect(service.createPage).toHaveBeenCalledWith(req.user, pageDto);
         });
@@ -74,6 +78,49 @@ describe('SchoolController', () => {
             expect(service.unSubscribePage).toHaveBeenCalledWith(
                 req.user,
                 pageId,
+            );
+        });
+    });
+
+    describe('createNews', () => {
+        it('PageService 올바른 호출', async () => {
+            const newsDto = new NewsDto();
+            const pageId = 'test';
+            const req = { user: { id: 'user-id', roles: ['STUDENT'] } };
+
+            await controller.createNews(req, pageId, newsDto);
+
+            expect(service.createNews).toHaveBeenCalledWith(
+                req.user,
+                pageId,
+                newsDto,
+            );
+        });
+    });
+
+    describe('deleteNews', () => {
+        it('PageService 올바른 호출', async () => {
+            const pageId = 'test';
+            const newsId = 'test';
+
+            await controller.deleteNews(pageId, newsId);
+
+            expect(service.deleteNews).toHaveBeenCalledWith(pageId, newsId);
+        });
+    });
+
+    describe('updateNews', () => {
+        it('PageService 올바른 호출', async () => {
+            const pageId = 'test';
+            const newsId = 'test';
+            const newsDto = new NewsDto();
+
+            await controller.updateNews(pageId, newsId, newsDto);
+
+            expect(service.updateNews).toHaveBeenCalledWith(
+                pageId,
+                newsId,
+                newsDto,
             );
         });
     });

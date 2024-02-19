@@ -4,9 +4,10 @@ import { PageController } from './page.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Page } from './entity/Page.entity';
 import { Subscription } from './entity/Subscription.entity';
+import { News } from './entity/News.entity';
 
 @Module({
-    imports: [TypeOrmModule.forFeature([Page, Subscription])],
+    imports: [TypeOrmModule.forFeature([Page, Subscription, News])],
     providers: [PageService],
     controllers: [PageController],
 })
