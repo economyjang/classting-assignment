@@ -23,6 +23,13 @@ export class Page {
     @Column()
     region: string;
 
+    @OneToOne(() => User, (user) => user.page)
+    @JoinColumn()
+    manager: User;
+
+    @OneToMany(() => News, (news) => news.page)
+    news: News[];
+
     @CreateDateColumn()
     created_at: Date;
 
@@ -31,13 +38,6 @@ export class Page {
 
     @DeleteDateColumn()
     deleted_at: Date;
-
-    @OneToOne(() => User)
-    @JoinColumn()
-    manager: User;
-
-    @OneToMany(() => News, (news) => news.page)
-    news: News[];
 
     setName(name: string) {
         this.name = name;

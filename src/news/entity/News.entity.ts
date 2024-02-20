@@ -23,6 +23,9 @@ export class News {
     @Column()
     created_by: string;
 
+    @ManyToOne(() => Page, (page) => page.news)
+    page: Page;
+
     @CreateDateColumn()
     created_at: Date;
 
@@ -31,9 +34,6 @@ export class News {
 
     @DeleteDateColumn()
     deleted_at: Date;
-
-    @ManyToOne(() => Page, (page) => page.news)
-    page: Page;
 
     setSubject(subject: string) {
         this.subject = subject;

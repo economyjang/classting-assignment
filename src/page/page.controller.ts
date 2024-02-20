@@ -28,14 +28,14 @@ export class PageController {
     @HttpCode(200)
     @Roles(UserType.MANAGER)
     async createPage(@Request() req, @Body() pageDto: PageDto) {
-        await this.pageService.createPage(req.user, pageDto);
+        return await this.pageService.createPage(req.user, pageDto);
     }
 
     // 페이지 구독
     @Post(':pageId/subscriptions')
     @HttpCode(200)
     async subscribe(@Request() req, @Param('pageId') pageId: string) {
-        await this.pageService.subscribePage(req.user, pageId);
+        return await this.pageService.subscribePage(req.user, pageId);
     }
 
     // 페이지 구독 취소
@@ -54,7 +54,7 @@ export class PageController {
         @Param('pageId') pageId: string,
         @Body() newDto: NewsDto,
     ) {
-        await this.pageService.createNews(req.user, pageId, newDto);
+        return await this.pageService.createNews(req.user, pageId, newDto);
     }
 
     // 페이지 소식 삭제
@@ -62,10 +62,11 @@ export class PageController {
     @HttpCode(200)
     @Roles(UserType.MANAGER)
     async deleteNews(
+        @Request() req,
         @Param('pageId') pageId: string,
         @Param('newsId') newsId: string,
     ) {
-        await this.pageService.deleteNews(pageId, newsId);
+        await this.pageService.deleteNews(req.user, pageId, newsId);
     }
 
     // 페이지 소식 수정
@@ -73,10 +74,11 @@ export class PageController {
     @HttpCode(200)
     @Roles(UserType.MANAGER)
     async updateNews(
+        @Request() req,
         @Param('pageId') pageId: string,
         @Param('newsId') newsId: string,
         @Body() newDto: NewsDto,
     ) {
-        await this.pageService.updateNews(pageId, newsId, newDto);
+        await this.pageService.updateNews(req.user, pageId, newsId, newDto);
     }
 }
