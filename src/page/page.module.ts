@@ -7,10 +7,12 @@ import { News } from '../news/entity/News.entity';
 import { SubscriptionService } from '../subscription/subscription.service';
 import { Subscription } from '../subscription/entity/Subscription.entity';
 import { NewsService } from '../news/news.service';
+import { FeedService } from '../feed/feed.service';
+import { Feed } from '../feed/entity/Feed.entity';
 
 @Module({
-    imports: [TypeOrmModule.forFeature([Page, News, Subscription])],
-    providers: [PageService, SubscriptionService, NewsService],
+    imports: [TypeOrmModule.forFeature([Page, News, Subscription, Feed])],
+    providers: [PageService, SubscriptionService, NewsService, FeedService],
     controllers: [PageController],
     exports: [PageService],
 })
