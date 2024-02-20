@@ -3,12 +3,14 @@ import {
     CreateDateColumn,
     DeleteDateColumn,
     Entity,
-    OneToMany,
+    OneToMany, OneToOne,
     PrimaryGeneratedColumn,
     UpdateDateColumn,
 } from 'typeorm';
 import { UserType } from '../../../types/UserType';
 import { Subscription } from '../../subscription/entity/Subscription.entity';
+import { Feed } from '../../feed/entity/Feed.entity';
+import { Page } from '../../page/entity/Page.entity';
 
 @Entity()
 export class User {
@@ -24,8 +26,17 @@ export class User {
     @Column()
     name: string;
 
+    @OneToOne(() => Page, (page) => page.manager)
+    page: Page;
+
     @Column()
     type: UserType;
+
+    @OneToMany(() => Subscription, (subscriptions) => subscriptions.user)
+    subscriptions: Subscription[];
+
+    @OneToMany(() => Feed, (feed) => feed.user)
+    feeds: Feed[];
 
     @CreateDateColumn()
     created_at: Date;
@@ -35,9 +46,6 @@ export class User {
 
     @DeleteDateColumn()
     deleted_at: Date;
-
-    @OneToMany(() => Subscription, (subscriptions) => subscriptions.user)
-    subscriptions: Subscription[];
 
     setEmailId(emailId: string) {
         this.email_id = emailId;
