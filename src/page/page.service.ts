@@ -12,6 +12,7 @@ import { User } from '../auth/entity/User.entity';
 import { NewsDto } from '../news/dto/NewsDto';
 import { SubscriptionService } from '../subscription/subscription.service';
 import { NewsService } from '../news/news.service';
+import { FeedService } from '../feed/feed.service';
 
 @Injectable()
 export class PageService {
@@ -20,6 +21,7 @@ export class PageService {
         @Inject(forwardRef(() => SubscriptionService))
         private subscriptionService: SubscriptionService,
         private newsService: NewsService,
+        private feedService: FeedService,
     ) {}
 
     async createPage(user: User, pageDto: PageDto) {
@@ -27,31 +29,51 @@ export class PageService {
             .setName(pageDto.name)
             .setRegion(pageDto.region)
             .setManager(user);
-        await this.pageRepository.save(page);
+        return await this.pageRepository.save(page);
     }
 
     async subscribePage(user: User, pageId: string) {
-        const page = await this.validatePageId(pageId);
-        await this.subscriptionService.saveSubscription(user, page);
+        const page = await this.validateByPageId(pageId);
+        return await this.subscriptionService.saveSubscription(user, page);
     }
 
     async unSubscribePage(user: User, pageId: string) {
-        const page = await this.validatePageId(pageId);
+        const page = await this.validateByPageId(pageId);
         await this.subscriptionService.deleteSubscription(user, page);
     }
 
     async createNews(user: User, pageId: string, newsDto: NewsDto) {
-        const page = await this.validatePageId(pageId);
-        await this.newsService.createNews(user, page, newsDto);
+        const page = await this.validateByUserWithPageId(user, pageId);
+        const savedNews = await this.newsService.createNews(
+            user,
+            page,
+            newsDto,
+        );
+
+        // 현재 페이지를 구독한 전체 사용자 목록 조회
+        const subscriptionUserList =
+            await this.subscriptionService.getSubscriptionUserList(pageId);
+        // 사용자 목록만큼 feed 를 저장
+        for (const subscription of subscriptionUserList) {
+            const user = subscription.user;
+            await this.feedService.saveFeed(user, savedNews);
+        }
+
+        return savedNews;
     }
 
-    async deleteNews(pageId: string, newsId: string) {
-        await this.validatePageId(pageId);
+    async deleteNews(user: User, pageId: string, newsId: string) {
+        await this.validateByUserWithPageId(user, pageId);
         await this.newsService.deleteNews(pageId, newsId);
     }
 
-    async updateNews(pageId: string, newsId: string, newsDto: NewsDto) {
-        await this.validatePageId(pageId);
+    async updateNews(
+        user: User,
+        pageId: string,
+        newsId: string,
+        newsDto: NewsDto,
+    ) {
+        await this.validateByUserWithPageId(user, pageId);
         await this.newsService.updateNews(pageId, newsId, newsDto);
     }
 
@@ -69,10 +91,24 @@ export class PageService {
         });
     }
 
-    private async validatePageId(pageId: string) {
+    private async validateByPageId(pageId: string) {
         const page = await this.pageRepository.findOne({
             where: { id: pageId },
         });
+
+        if (!page) {
+            throw new NotFoundException('존재하지 않는 페이지 입니다.');
+        }
+
+        return page;
+    }
+
+    private async validateByUserWithPageId(user: User, pageId: string) {
+        const page = await this.pageRepository.findOne({
+            where: { id: pageId, manager: { id: user.id } },
+            relations: { manager: true },
+        });
+
         if (!page) {
             throw new NotFoundException('존재하지 않는 페이지 입니다.');
         }

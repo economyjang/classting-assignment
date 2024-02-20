@@ -29,7 +29,7 @@ export class SubscriptionService {
 
     async saveSubscription(user: User, page: Page) {
         const subscription = new Subscription().setUser(user).setPage(page);
-        await this.subscriptionRepository.save(subscription);
+        return await this.subscriptionRepository.save(subscription);
     }
 
     async deleteSubscription(user: User, page: Page) {
@@ -47,5 +47,12 @@ export class SubscriptionService {
 
         const result = await this.pageService.getNewsByPageId(pageId);
         return result.news;
+    }
+
+    async getSubscriptionUserList(pageId: string) {
+        return await this.subscriptionRepository.find({
+            where: { page: { id: pageId } },
+            relations: { user: true, page: true },
+        });
     }
 }

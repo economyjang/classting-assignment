@@ -18,7 +18,8 @@ export class NewsService {
             .setContent(newsDto.content)
             .setCreatedBy(user.name)
             .setPage(page);
-        await this.newsRepository.save(news);
+
+        return await this.newsRepository.save(news);
     }
 
     async deleteNews(pageId: string, newsId: string) {

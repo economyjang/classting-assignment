@@ -49,7 +49,6 @@ describe('PageController', () => {
             const req = { user: { id: 'user-id', roles: ['MANAGER'] } };
 
             await controller.createPage(req, pageDto);
-
             expect(service.createPage).toHaveBeenCalledWith(req.user, pageDto);
         });
     });
@@ -60,7 +59,6 @@ describe('PageController', () => {
             const req = { user: { id: 'user-id', roles: ['STUDENT'] } };
 
             await controller.subscribe(req, pageId);
-
             expect(service.subscribePage).toHaveBeenCalledWith(
                 req.user,
                 pageId,
@@ -74,7 +72,6 @@ describe('PageController', () => {
             const req = { user: { id: 'user-id', roles: ['STUDENT'] } };
 
             await controller.unSubscribe(req, pageId);
-
             expect(service.unSubscribePage).toHaveBeenCalledWith(
                 req.user,
                 pageId,
@@ -84,12 +81,11 @@ describe('PageController', () => {
 
     describe('createNews', () => {
         it('PageService 올바른 호출', async () => {
+            const req = { user: { id: 'user-id', roles: ['MANAGER'] } };
             const newsDto = new NewsDto();
             const pageId = 'test';
-            const req = { user: { id: 'user-id', roles: ['MANAGER'] } };
 
             await controller.createNews(req, pageId, newsDto);
-
             expect(service.createNews).toHaveBeenCalledWith(
                 req.user,
                 pageId,
@@ -100,24 +96,31 @@ describe('PageController', () => {
 
     describe('deleteNews', () => {
         it('PageService 올바른 호출', async () => {
+            const req = { user: { id: 'user-id', roles: ['MANAGER'] } };
             const pageId = 'test';
             const newsId = 'test';
 
-            await controller.deleteNews(pageId, newsId);
-
-            expect(service.deleteNews).toHaveBeenCalledWith(pageId, newsId);
+            await controller.deleteNews(req, pageId, newsId);
+            expect(service.deleteNews).toHaveBeenCalledWith(
+                req.user,
+                pageId,
+                newsId,
+            );
         });
     });
 
     describe('updateNews', () => {
         it('PageService 올바른 호출', async () => {
+            const req = { user: { id: 'user-id', roles: ['MANAGER'] } };
             const pageId = 'test';
             const newsId = 'test';
             const newsDto = new NewsDto();
+            newsDto.subject = 'test';
+            newsDto.content = 'test';
 
-            await controller.updateNews(pageId, newsId, newsDto);
-
+            await controller.updateNews(req, pageId, newsId, newsDto);
             expect(service.updateNews).toHaveBeenCalledWith(
+                req.user,
                 pageId,
                 newsId,
                 newsDto,
