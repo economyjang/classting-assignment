@@ -7,7 +7,7 @@ import { User } from '../auth/entity/User.entity';
 import { UserType } from '../../types/UserType';
 import { Page } from '../page/entity/Page.entity';
 import { PageService } from '../page/page.service';
-import { NotFoundException } from '@nestjs/common';
+import { ConflictException, NotFoundException } from '@nestjs/common';
 
 describe('SubscriptionService', () => {
     let service: SubscriptionService;
@@ -72,6 +72,9 @@ describe('SubscriptionService', () => {
             const page = new Page();
             const subscription = new Subscription().setUser(user).setPage(page);
 
+            jest.spyOn(subscriptionRepository, 'exists').mockResolvedValue(
+                false,
+            );
             jest.spyOn(subscriptionRepository, 'save').mockResolvedValue(
                 undefined,
             );
@@ -79,9 +82,28 @@ describe('SubscriptionService', () => {
             await expect(
                 service.saveSubscription(user, page),
             ).resolves.not.toThrow();
+            expect(subscriptionRepository.exists).toHaveBeenCalledWith({
+                where: { user: { id: user.id }, page: { id: page.id } },
+            });
             expect(subscriptionRepository.save).toHaveBeenCalledWith(
                 subscription,
             );
+        });
+
+        it('이미 구독한 상태 테스트', async () => {
+            const user = new User();
+            const page = new Page();
+
+            jest.spyOn(subscriptionRepository, 'exists').mockResolvedValue(
+                true,
+            );
+
+            await expect(service.saveSubscription(user, page)).rejects.toThrow(
+                ConflictException,
+            );
+            expect(subscriptionRepository.exists).toHaveBeenCalledWith({
+                where: { user: { id: user.id }, page: { id: page.id } },
+            });
         });
 
         it('정상 구독 취소 테스트', async () => {

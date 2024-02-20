@@ -1,4 +1,5 @@
 import {
+    ConflictException,
     forwardRef,
     Inject,
     Injectable,
@@ -29,6 +30,14 @@ export class SubscriptionService {
 
     async saveSubscription(user: User, page: Page) {
         const subscription = new Subscription().setUser(user).setPage(page);
+
+        const existResult = await this.subscriptionRepository.exists({
+            where: { user: { id: user.id }, page: { id: page.id } },
+        });
+        if (existResult) {
+            throw new ConflictException('이미 구독중인 페이지 입니다.');
+        }
+
         return await this.subscriptionRepository.save(subscription);
     }
 
