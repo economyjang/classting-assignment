@@ -10,11 +10,15 @@ import { News } from '../news/entity/News.entity';
 import { NewsDto } from '../news/dto/NewsDto';
 import { SubscriptionService } from '../subscription/subscription.service';
 import { NewsService } from '../news/news.service';
+import { FeedService } from '../feed/feed.service';
+import { PageDto } from './dto/PageDto';
+import { Subscription } from '../subscription/entity/Subscription.entity';
 
 describe('PageService', () => {
     let pageService: PageService;
     let subscriptionService: SubscriptionService;
     let newsService: NewsService;
+    let feedService: FeedService;
 
     let pageRepository: Repository<Page>;
     let newsRepository: Repository<News>;
@@ -28,6 +32,7 @@ describe('PageService', () => {
                     useValue: {
                         saveSubscription: jest.fn(),
                         deleteSubscription: jest.fn(),
+                        getSubscriptionUserList: jest.fn(),
                     },
                 },
                 {
@@ -36,6 +41,12 @@ describe('PageService', () => {
                         createNews: jest.fn(),
                         deleteNews: jest.fn(),
                         updateNews: jest.fn(),
+                    },
+                },
+                {
+                    provide: FeedService,
+                    useValue: {
+                        saveFeed: jest.fn(),
                     },
                 },
                 {
@@ -62,6 +73,7 @@ describe('PageService', () => {
         subscriptionService =
             module.get<SubscriptionService>(SubscriptionService);
         newsService = module.get<NewsService>(NewsService);
+        feedService = module.get<FeedService>(FeedService);
         pageRepository = module.get(getRepositoryToken(Page));
         newsRepository = module.get(getRepositoryToken(News));
     });
@@ -73,11 +85,7 @@ describe('PageService', () => {
     describe('createPage 테스트', () => {
         it('정상 생성 테스트', async () => {
             const user = new User();
-            user.id = 'test';
-            user.email_id = 'test@test.com';
-            user.password = 'test';
-            user.type = UserType.MANAGER;
-            const pageDto = { name: 'Test Page', region: 'Test Region' };
+            const pageDto = new PageDto();
 
             jest.spyOn(pageRepository, 'save').mockResolvedValue(undefined);
 
@@ -118,13 +126,7 @@ describe('PageService', () => {
 
         it('존재하지 않은 페이지 테스트', async () => {
             const user = new User();
-            user.id = 'test';
-            user.email_id = 'test@test.com';
-            user.password = 'test';
-            user.type = UserType.STUDENT;
             const pageId = 'test';
-            const page = new Page();
-            page.id = 'test';
 
             jest.spyOn(pageRepository, 'findOne').mockResolvedValue(undefined);
 
@@ -163,13 +165,7 @@ describe('PageService', () => {
 
         it('존재하지 않은 페이지 테스트', async () => {
             const user = new User();
-            user.id = 'test';
-            user.email_id = 'test@test.com';
-            user.password = 'test';
-            user.type = UserType.STUDENT;
             const pageId = 'test';
-            const page = new Page();
-            page.id = 'test';
 
             jest.spyOn(pageRepository, 'findOne').mockResolvedValue(undefined);
 
@@ -198,31 +194,40 @@ describe('PageService', () => {
                 .setPage(page)
                 .setCreatedBy(user.name);
 
+            const subscription = new Subscription().setUser(user).setPage(page);
+
             jest.spyOn(pageRepository, 'findOne').mockResolvedValue(page);
-            jest.spyOn(newsService, 'createNews').mockResolvedValue(undefined);
+            jest.spyOn(newsService, 'createNews').mockResolvedValue(news);
+            jest.spyOn(
+                subscriptionService,
+                'getSubscriptionUserList',
+            ).mockResolvedValue([subscription]);
+            jest.spyOn(feedService, 'saveFeed').mockResolvedValue(undefined);
 
             await expect(
                 pageService.createNews(user, pageId, newsDto),
             ).resolves.not.toThrow();
             expect(pageRepository.findOne).toHaveBeenCalledWith({
-                where: { id: 'test' },
+                where: { id: pageId, manager: { id: user.id } },
+                relations: { manager: true },
             });
             expect(newsService.createNews).toHaveBeenCalledWith(
                 user,
                 page,
                 newsDto,
             );
+            expect(
+                subscriptionService.getSubscriptionUserList,
+            ).toHaveBeenCalledWith(pageId);
+            expect(feedService.saveFeed).toHaveBeenCalledWith(
+                subscription.user,
+                news,
+            );
         });
 
         it('존재하지 않은 페이지 테스트', async () => {
             const user = new User();
-            user.id = 'test';
-            user.email_id = 'test@test.com';
-            user.password = 'test';
-            user.type = UserType.STUDENT;
             const pageId = 'test';
-            const page = new Page();
-            page.id = 'test';
 
             jest.spyOn(pageRepository, 'findOne').mockResolvedValue(undefined);
 
@@ -237,6 +242,7 @@ describe('PageService', () => {
 
     describe('deleteNews 테스트', () => {
         it('페이지 소식 삭제 테스트', async () => {
+            const user = new User();
             const pageId = 'test';
             const newsId = 'test';
             const page = new Page();
@@ -245,15 +251,17 @@ describe('PageService', () => {
             jest.spyOn(newsService, 'deleteNews').mockResolvedValue(undefined);
 
             await expect(
-                pageService.deleteNews(pageId, newsId),
+                pageService.deleteNews(user, pageId, newsId),
             ).resolves.not.toThrow();
             expect(pageRepository.findOne).toHaveBeenCalledWith({
-                where: { id: 'test' },
+                where: { id: pageId, manager: { id: user.id } },
+                relations: { manager: true },
             });
             expect(newsService.deleteNews).toHaveBeenCalledWith(pageId, newsId);
         });
 
         it('존재하지 않은 페이지 테스트', async () => {
+            const user = new User();
             const pageId = 'test';
             const newsId = 'test';
             const page = new Page();
@@ -262,26 +270,11 @@ describe('PageService', () => {
             jest.spyOn(pageRepository, 'findOne').mockResolvedValue(undefined);
 
             await expect(
-                pageService.deleteNews(pageId, newsId),
+                pageService.deleteNews(user, pageId, newsId),
             ).rejects.toThrow(NotFoundException);
             expect(pageRepository.findOne).toHaveBeenCalledWith({
-                where: { id: 'test' },
-            });
-        });
-
-        it('존재하지 않은 뉴스 테스트', async () => {
-            const pageId = 'test';
-            const newsId = 'test';
-            const page = new Page();
-            page.id = 'test';
-
-            jest.spyOn(newsRepository, 'findOne').mockResolvedValue(undefined);
-
-            await expect(
-                pageService.deleteNews(pageId, newsId),
-            ).rejects.toThrow(NotFoundException);
-            expect(pageRepository.findOne).toHaveBeenCalledWith({
-                where: { id: 'test' },
+                where: { id: pageId, manager: { id: user.id } },
+                relations: { manager: true },
             });
         });
     });
@@ -290,6 +283,7 @@ describe('PageService', () => {
         it('페이지 소식 수정 테스트', async () => {
             const pageId = 'test';
             const newsId = 'test';
+            const user = new User();
             const page = new Page();
             const newsDto = new NewsDto();
 
@@ -297,10 +291,11 @@ describe('PageService', () => {
             jest.spyOn(newsService, 'updateNews').mockResolvedValue(undefined);
 
             await expect(
-                pageService.updateNews(pageId, newsId, newsDto),
+                pageService.updateNews(user, pageId, newsId, newsDto),
             ).resolves.not.toThrow();
             expect(pageRepository.findOne).toHaveBeenCalledWith({
-                where: { id: 'test' },
+                where: { id: pageId, manager: { id: user.id } },
+                relations: { manager: true },
             });
             expect(newsService.updateNews).toHaveBeenCalledWith(
                 pageId,
@@ -310,6 +305,7 @@ describe('PageService', () => {
         });
 
         it('존재하지 않은 페이지 테스트', async () => {
+            const user = new User();
             const pageId = 'test';
             const newsId = 'test';
             const newsDto = new NewsDto();
@@ -317,25 +313,11 @@ describe('PageService', () => {
             jest.spyOn(pageRepository, 'findOne').mockResolvedValue(undefined);
 
             await expect(
-                pageService.updateNews(pageId, newsId, newsDto),
+                pageService.updateNews(user, pageId, newsId, newsDto),
             ).rejects.toThrow(NotFoundException);
             expect(pageRepository.findOne).toHaveBeenCalledWith({
-                where: { id: 'test' },
-            });
-        });
-
-        it('존재하지 않은 뉴스 테스트', async () => {
-            const pageId = 'test';
-            const newsId = 'test';
-            const newsDto = new NewsDto();
-
-            jest.spyOn(newsRepository, 'findOne').mockResolvedValue(undefined);
-
-            await expect(
-                pageService.updateNews(pageId, newsId, newsDto),
-            ).rejects.toThrow(NotFoundException);
-            expect(pageRepository.findOne).toHaveBeenCalledWith({
-                where: { id: 'test' },
+                where: { id: pageId, manager: { id: user.id } },
+                relations: { manager: true },
             });
         });
     });

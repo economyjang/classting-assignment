@@ -1,18 +1,44 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { FeedController } from './feed.controller';
+import { FeedService } from './feed.service';
+import { AuthGuard } from '@nestjs/passport';
 
 describe('FeedController', () => {
-  let controller: FeedController;
+    let controller: FeedController;
+    let service: FeedService;
 
-  beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      controllers: [FeedController],
-    }).compile();
+    const mockFeedService = {
+        getNewsFeed: jest.fn(),
+    };
 
-    controller = module.get<FeedController>(FeedController);
-  });
+    beforeEach(async () => {
+        const module: TestingModule = await Test.createTestingModule({
+            controllers: [FeedController],
+            providers: [
+                {
+                    provide: FeedService,
+                    useValue: mockFeedService,
+                },
+            ],
+        })
+            .overrideGuard(AuthGuard('jwt'))
+            .useValue({ canActivate: () => true })
+            .compile();
 
-  it('should be defined', () => {
-    expect(controller).toBeDefined();
-  });
+        controller = module.get<FeedController>(FeedController);
+        service = module.get<FeedService>(FeedService);
+    });
+
+    it('should be defined', () => {
+        expect(controller).toBeDefined();
+    });
+
+    describe('getNewsFeed', () => {
+        it('FeedService 올바른 호출', async () => {
+            const req = { user: { id: 'user-id', roles: ['STUDENT'] } };
+
+            await controller.getNewsFeed(req);
+            expect(service.getNewsFeed).toHaveBeenCalledWith(req.user);
+        });
+    });
 });
