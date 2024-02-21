@@ -7,7 +7,7 @@ export class NewsDto {
         description: '제목',
         required: true,
     })
-    @IsNotEmpty()
+    @IsNotEmpty({ message: '제목은 필수값 입니다.' })
     subject: string;
 
     @ApiProperty({
@@ -15,6 +15,6 @@ export class NewsDto {
         description: '본문',
         required: true,
     })
-    @IsNotEmpty()
+    @IsNotEmpty({ message: '본문은 필수값 입니다.' })
     content: string;
 }

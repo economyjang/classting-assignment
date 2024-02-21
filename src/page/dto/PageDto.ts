@@ -7,7 +7,7 @@ export class PageDto {
         description: '페이지 학교명',
         required: true,
     })
-    @IsNotEmpty()
+    @IsNotEmpty({ message: '페이지명은 필수값 입니다.' })
     name: string;
 
     @ApiProperty({
@@ -15,6 +15,6 @@ export class PageDto {
         description: '페이지 지역',
         required: true,
     })
-    @IsNotEmpty()
+    @IsNotEmpty({ message: '지역명은 필수값 입니다.' })
     region: string;
 }

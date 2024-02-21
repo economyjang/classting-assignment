@@ -8,8 +8,8 @@ export class SignUpDto {
         description: '이메일 계정',
         required: true,
     })
-    @IsEmail()
-    @IsNotEmpty()
+    @IsEmail({}, { message: '이메일 형식이 잘못되었습니다.' })
+    @IsNotEmpty({ message: '이메일은 필수값 입니다.' })
     emailId: string;
 
     @ApiProperty({
@@ -17,7 +17,7 @@ export class SignUpDto {
         description: '패스워드',
         required: true,
     })
-    @IsNotEmpty()
+    @IsNotEmpty({ message: '패스워드는 필수값 입니다.' })
     password: string;
 
     @ApiProperty({
@@ -25,7 +25,7 @@ export class SignUpDto {
         description: '사용자 이름',
         required: true,
     })
-    @IsNotEmpty()
+    @IsNotEmpty({ message: '사용자 이름은 필수값 입니다.' })
     name: string;
 
     @ApiProperty({
@@ -33,6 +33,6 @@ export class SignUpDto {
         description: '사용자 타입',
         required: true,
     })
-    @IsEnum(UserType)
+    @IsEnum(UserType, { message: '사용자 타입이 올바르지 않습니다.' })
     type: UserType;
 }
