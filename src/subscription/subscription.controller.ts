@@ -8,7 +8,13 @@ import {
 } from '@nestjs/common';
 import { SubscriptionService } from './subscription.service';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
+import {
+    ApiBearerAuth,
+    ApiBody,
+    ApiOperation,
+    ApiParam,
+    ApiResponse,
+} from '@nestjs/swagger';
 import { NewsDto } from '../news/dto/NewsDto';
 
 @UseGuards(AuthGuard('jwt'))

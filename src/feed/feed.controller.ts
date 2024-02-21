@@ -1,7 +1,12 @@
 import { Controller, Get, HttpCode, UseGuards, Request } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { FeedService } from './feed.service';
-import { ApiBearerAuth, ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
+import {
+    ApiBearerAuth,
+    ApiOperation,
+    ApiParam,
+    ApiResponse,
+} from '@nestjs/swagger';
 
 @UseGuards(AuthGuard('jwt'))
 @Controller('feeds')
