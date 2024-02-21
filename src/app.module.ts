@@ -21,7 +21,7 @@ import { SubscriptionModule } from './subscription/subscription.module';
             password: 'root',
             database: 'classting_test',
             entities: [__dirname + '/**/*.entity{.ts,.js}'],
-            synchronize: false,
+            synchronize: true,
         }),
         SubscriptionModule,
     ],
