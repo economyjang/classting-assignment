@@ -2,9 +2,7 @@ import {
     CreateDateColumn,
     DeleteDateColumn,
     Entity,
-    JoinColumn,
     ManyToOne,
-    OneToOne,
     PrimaryGeneratedColumn,
     UpdateDateColumn,
 } from 'typeorm';
@@ -16,10 +14,10 @@ export class Feed {
     @PrimaryGeneratedColumn()
     id: string;
 
-    @ManyToOne(() => User)
+    @ManyToOne(() => User, (user) => user.id)
     user: User;
 
-    @ManyToOne(() => News)
+    @ManyToOne(() => News, (news) => news.id)
     news: News;
 
     @CreateDateColumn()

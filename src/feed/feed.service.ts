@@ -16,6 +16,10 @@ export class FeedService {
         await this.feedRepository.save(feed);
     }
 
+    async deleteFeed(newsId: string) {
+        await this.feedRepository.softDelete({ news: { id: newsId } });
+    }
+
     async getNewsFeed(user) {
         const feedList = await this.feedRepository.find({
             where: { user: { id: user.id } },
