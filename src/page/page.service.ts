@@ -1,4 +1,5 @@
 import {
+    ConflictException,
     forwardRef,
     Inject,
     Injectable,
@@ -25,16 +26,22 @@ export class PageService {
     ) {}
 
     async createPage(user: User, pageDto: PageDto) {
-        const page = new Page()
-            .setName(pageDto.name)
-            .setRegion(pageDto.region)
-            .setManager(user);
-        return await this.pageRepository.save(page);
+        try {
+            const page = new Page()
+                .setName(pageDto.name)
+                .setRegion(pageDto.region)
+                .setManager(user);
+            return await this.pageRepository.save(page);
+        } catch (error) {
+            throw new ConflictException(
+                '관리자는 여러개의 페이지를 소유할 수 없습니다.',
+            );
+        }
     }
 
     async subscribePage(user: User, pageId: string) {
         const page = await this.validateByPageId(pageId);
-        return await this.subscriptionService.saveSubscription(user, page);
+        await this.subscriptionService.saveSubscription(user, page);
     }
 
     async unSubscribePage(user: User, pageId: string) {
@@ -65,6 +72,7 @@ export class PageService {
     async deleteNews(user: User, pageId: string, newsId: string) {
         await this.validateByUserWithPageId(user, pageId);
         await this.newsService.deleteNews(pageId, newsId);
+        await this.feedService.deleteFeed(newsId);
     }
 
     async updateNews(

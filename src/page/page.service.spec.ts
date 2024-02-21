@@ -47,6 +47,7 @@ describe('PageService', () => {
                     provide: FeedService,
                     useValue: {
                         saveFeed: jest.fn(),
+                        deleteFeed: jest.fn(),
                     },
                 },
                 {
@@ -249,6 +250,7 @@ describe('PageService', () => {
 
             jest.spyOn(pageRepository, 'findOne').mockResolvedValue(page);
             jest.spyOn(newsService, 'deleteNews').mockResolvedValue(undefined);
+            jest.spyOn(feedService, 'deleteFeed').mockResolvedValue(undefined);
 
             await expect(
                 pageService.deleteNews(user, pageId, newsId),
@@ -258,6 +260,7 @@ describe('PageService', () => {
                 relations: { manager: true },
             });
             expect(newsService.deleteNews).toHaveBeenCalledWith(pageId, newsId);
+            expect(feedService.deleteFeed).toHaveBeenCalledWith(newsId);
         });
 
         it('존재하지 않은 페이지 테스트', async () => {

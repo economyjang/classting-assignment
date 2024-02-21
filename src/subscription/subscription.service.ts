@@ -38,10 +38,17 @@ export class SubscriptionService {
             throw new ConflictException('이미 구독중인 페이지 입니다.');
         }
 
-        return await this.subscriptionRepository.save(subscription);
+        await this.subscriptionRepository.save(subscription);
     }
 
     async deleteSubscription(user: User, page: Page) {
+        const existResult = await this.subscriptionRepository.exists({
+            where: { user: { id: user.id }, page: { id: page.id } },
+        });
+        if (!existResult) {
+            throw new ConflictException('구독중인 페이지가 아닙니다.');
+        }
+
         await this.subscriptionRepository.softDelete({ user, page });
     }
 

@@ -110,6 +110,9 @@ describe('SubscriptionService', () => {
             const user = new User();
             const page = new Page();
 
+            jest.spyOn(subscriptionRepository, 'exists').mockResolvedValue(
+                true,
+            );
             jest.spyOn(subscriptionRepository, 'softDelete').mockResolvedValue(
                 undefined,
             );
@@ -117,6 +120,9 @@ describe('SubscriptionService', () => {
             await expect(
                 service.deleteSubscription(user, page),
             ).resolves.not.toThrow();
+            expect(subscriptionRepository.exists).toHaveBeenCalledWith({
+                where: { user: { id: user.id }, page: { id: page.id } },
+            });
             expect(subscriptionRepository.softDelete).toHaveBeenCalledWith({
                 user,
                 page,

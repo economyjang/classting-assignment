@@ -5,6 +5,8 @@ import { AuthGuard } from '@nestjs/passport';
 import { RolesGuard } from '../auth/guard/roles.guard';
 import { PageDto } from './dto/PageDto';
 import { NewsDto } from '../news/dto/NewsDto';
+import { Page } from './entity/Page.entity';
+import { News } from '../news/entity/News.entity';
 
 describe('PageController', () => {
     let controller: PageController;
@@ -48,6 +50,10 @@ describe('PageController', () => {
             const pageDto = new PageDto();
             const req = { user: { id: 'user-id', roles: ['MANAGER'] } };
 
+            const page = new Page();
+            page.id = 'test';
+            jest.spyOn(service, 'createPage').mockResolvedValue(page);
+
             await controller.createPage(req, pageDto);
             expect(service.createPage).toHaveBeenCalledWith(req.user, pageDto);
         });
@@ -85,6 +91,9 @@ describe('PageController', () => {
             const newsDto = new NewsDto();
             const pageId = 'test';
 
+            const news = new News();
+            news.id = 'test';
+            jest.spyOn(service, 'createNews').mockResolvedValue(news);
             await controller.createNews(req, pageId, newsDto);
             expect(service.createNews).toHaveBeenCalledWith(
                 req.user,
