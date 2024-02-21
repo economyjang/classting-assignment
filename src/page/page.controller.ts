@@ -73,6 +73,17 @@ export class PageController {
         },
     })
     @ApiResponse({
+        status: 403,
+        description: '페이지 생성 권한 오류',
+        schema: {
+            example: {
+                message: 'Forbidden resource',
+                error: 'Forbidden',
+                statusCode: 403,
+            },
+        },
+    })
+    @ApiResponse({
         status: 409,
         description: '페이지 생성 오류',
         schema: {
@@ -221,6 +232,17 @@ export class PageController {
         },
     })
     @ApiResponse({
+        status: 403,
+        description: '페이지 소식 생성 권한 오류',
+        schema: {
+            example: {
+                message: 'Forbidden resource',
+                error: 'Forbidden',
+                statusCode: 403,
+            },
+        },
+    })
+    @ApiResponse({
         status: 404,
         description: '페이지 ID 검증 오류',
         schema: {
@@ -268,6 +290,17 @@ export class PageController {
             example: {
                 message: 'Unauthorized',
                 statusCode: 401,
+            },
+        },
+    })
+    @ApiResponse({
+        status: 403,
+        description: '페이지 소식 삭제 권한 오류',
+        schema: {
+            example: {
+                message: 'Forbidden resource',
+                error: 'Forbidden',
+                statusCode: 403,
             },
         },
     })
@@ -329,6 +362,17 @@ export class PageController {
             example: {
                 message: 'Unauthorized',
                 statusCode: 401,
+            },
+        },
+    })
+    @ApiResponse({
+        status: 403,
+        description: '페이지 소식 수정 권한 오류',
+        schema: {
+            example: {
+                message: 'Forbidden resource',
+                error: 'Forbidden',
+                statusCode: 403,
             },
         },
     })
